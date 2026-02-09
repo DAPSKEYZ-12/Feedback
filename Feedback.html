@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback & Q&A | Aura Digital Academia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a237e;
+            --accent: #7e57c2;
+            --bg: #f1f5f9;
+            --white: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #e0e7ff 0%, #f1f5f9 100%);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .feedback-container {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header { text-align: center; margin-bottom: 30px; }
+        .header h1 { color: var(--primary); font-size: 1.8rem; font-weight: 800; margin: 0; }
+        .header p { color: #64748b; margin-top: 8px; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 700; font-size: 0.8rem; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: inherit;
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 4px rgba(126, 87, 194, 0.1);
+        }
+
+        /* Star Rating Style */
+        .rating-group {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .rating-group input { display: none; }
+        .rating-group label {
+            font-size: 2rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .rating-group input:checked ~ label,
+        .rating-group label:hover,
+        .rating-group label:hover ~ label { color: #f59e0b; }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        button:hover {
+            background: var(--accent);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(126, 87, 194, 0.3);
+        }
+
+        #status-msg {
+            margin-top: 20px;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .footer { text-align: center; margin-top: 25px; font-size: 0.7rem; color: #94a3b8; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="feedback-container">
+    <div class="header">
+        <h1>Share Your Thoughts</h1>
+        <p>Help us improve your learning experience</p>
+    </div>
+
+    <form id="feedbackForm">
+        <input type="hidden" name="Timestamp" id="timestamp">
+        
+        <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="FullName" placeholder="Your Name" required>
+        </div>
+
+        <div class="form-group">
+            <label>Which Day?</label>
+            <select name="ProgramDay" required>
+                <option value="Day 1">Day 1</option>
+                <option value="Day 2">Day 2 </option>
+                <option value="Day 3">Day 3</option>
+                <option value="Day 4">Day 4</option>
+                <option value="Day 5">Day 5</option>
+            </select>
+        </div>
+
+        <div class="form-group" style="text-align: center;">
+            <label>Session Rating</label>
+            <div class="rating-group">
+                <input type="radio" name="Rating" value="5" id="5"><label for="5">★</label>
+                <input type="radio" name="Rating" value="4" id="4"><label for="4">★</label>
+                <input type="radio" name="Rating" value="3" id="3"><label for="3">★</label>
+                <input type="radio" name="Rating" value="2" id="2"><label for="2">★</label>
+                <input type="radio" name="Rating" value="1" id="1"><label for="1">★</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Feedback or Question</label>
+            <textarea name="Comments" rows="4" placeholder="What's on your mind?" required></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">SEND FEEDBACK</button>
+    </form>
+
+    <div id="status-msg"></div>
+    <div class="footer">POWERED BY D-MATHS | 2026</div>
+</div>
+
+<script>
+    const scriptURL = 'YOUR_GOOGLE_SCRIPT_URL_HERE';
+    const form = document.getElementById('feedbackForm');
+    const btn = document.getElementById('submitBtn');
+    const status = document.getElementById('status-msg');
+
+    form.addEventListener('submit', e => {
+        e.preventDefault();
+        btn.disabled = true;
+        btn.innerHTML = "Sending...";
+        document.getElementById('timestamp').value = new Date().toLocaleString();
+
+        fetch(scriptURL, { method: 'POST', body: new FormData(form)})
+            .then(response => {
+                status.innerHTML = "Thank you! Your feedback has been sent. ✨";
+                status.style.display = "block";
+                status.style.background = "#dcfce7";
+                status.style.color = "#166534";
+                form.reset();
+                btn.disabled = false;
+                btn.innerHTML = "SEND FEEDBACK";
+            })
+            .catch(error => {
+                status.innerHTML = "Something went wrong. Please try again.";
+                status.style.display = "block";
+                status.style.background = "#fee2e2";
+                status.style.color = "#991b1b";
+                btn.disabled = false;
+                btn.innerHTML = "SEND FEEDBACK";
+            });
+    });
+</script>
+
+</body>
+</html>
